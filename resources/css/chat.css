@@ -1,4 +1,4 @@
-﻿*,
+*,
 *::before,
 *::after {
     box-sizing: border-box;
@@ -498,6 +498,269 @@ body {
 #emoji-picker span:hover {
     background: var(--bg-hover);
     transform: scale(1.2);
+}
+
+#normal-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+#voice-rec-bar {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    background: var(--bg-input);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.input-icon-btn.danger:hover {
+    color: #ea4335;
+    background: rgba(234, 67, 53, 0.15);
+}
+
+.rec-timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    min-width: 48px;
+}
+
+.rec-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #ea4335;
+    animation: pulseRed 1s infinite alternate;
+}
+
+@keyframes pulseRed {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0.3;
+        transform: scale(0.85);
+    }
+}
+
+.rec-visualizer-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    height: 26px;
+}
+
+#rec-visualizer {
+    width: 140px;
+    height: 26px;
+}
+
+#send-btn.recording {
+    background: var(--accent);
+    color: #fff;
+}
+#send-btn.recording svg.send-icon {
+    display: block;
+}
+#send-btn.recording svg.mic-icon {
+    display: none;
+}
+
+.bubble.voice-bubble {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 250px;
+    max-width: 320px;
+    padding: 8px 12px 10px;
+}
+
+.msg-row.out .bubble.voice-bubble {
+    background: var(--bg-bubble-out);
+}
+
+.msg-row.in .bubble.voice-bubble {
+    background: var(--bg-bubble-in);
+}
+
+.vb-avatar {
+    flex-shrink: 0;
+}
+
+.vba-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+    user-select: none;
+}
+
+.vba-circle.out {
+    background: #008069;
+}
+
+.vba-circle.in {
+    background: #e91e63;
+}
+
+.vb-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.vb-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vb-play-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition:
+        background 0.15s,
+        transform 0.1s;
+}
+
+.vb-play-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.vb-play-btn:active {
+    transform: scale(0.92);
+}
+
+.vb-waveform-container {
+    flex: 1;
+    height: 28px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.vb-waveform-bars {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 100%;
+    width: 100%;
+}
+
+.vb-bar {
+    flex: 1;
+    width: 3px;
+    min-width: 2px;
+    border-radius: 2px;
+    background: #53636e;
+    transition: background 0.12s ease;
+}
+
+.msg-row.out .vb-bar {
+    background: #537971;
+}
+
+.msg-row.out .vb-bar.played {
+    background: #e9edef;
+}
+
+.msg-row.in .vb-bar {
+    background: #667781;
+}
+
+.msg-row.in .vb-bar.played {
+    background: var(--accent);
+}
+
+.vb-waveform-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    pointer-events: none;
+}
+
+.vb-waveform-handle {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    transition: left 0.05s linear;
+}
+
+.msg-row.out .vb-waveform-handle {
+    background: #e9edef;
+}
+
+.vb-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 2px;
+}
+
+.vb-time-disp {
+    font-size: 11px;
+    color: var(--text-time);
+    font-variant-numeric: tabular-nums;
+}
+
+.vb-speed-btn {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.vb-speed-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.voice-meta {
+    float: none !important;
+    clear: none !important;
+    align-self: flex-end;
+    margin-bottom: -2px;
+    margin-left: 4px;
 }
 
 @media (max-width: 600px) {
