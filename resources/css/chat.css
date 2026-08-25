@@ -151,11 +151,11 @@ body {
 #messages-area {
     flex: 1;
     overflow-y: auto;
+    overflow-anchor: auto;
     padding: 14px 8%;
     display: flex;
     flex-direction: column;
     gap: 2px;
-    scroll-behavior: smooth;
     position: relative;
     z-index: 1;
     scrollbar-width: thin;
@@ -840,4 +840,25 @@ body {
     .bubble {
         max-width: 85%;
     }
+}
+
+.top-loader-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    width: 100%;
+}
+
+.top-loader-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--accent, #00a884);
+    border-radius: 50%;
+    animation: top-spinner 0.8s linear infinite;
+}
+
+@keyframes top-spinner {
+    to { transform: rotate(360deg); }
 }

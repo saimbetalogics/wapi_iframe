@@ -192,9 +192,6 @@ window.stopRecording = function (discard = false) {
         return;
     }
 
-    window.msgIdCounter++;
-    const newMsgId = window.msgIdCounter;
-
     let blob = null;
     if (s.recordedChunks.length > 0) {
         blob = new Blob(s.recordedChunks, { type: s.mediaRecorder.mimeType || 'audio/webm' });

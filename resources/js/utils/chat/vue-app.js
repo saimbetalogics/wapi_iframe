@@ -1,6 +1,9 @@
 (function () {
   "use strict";
 
+  const DEFAULT_IDENTITY =
+    "eyJpdiI6InY1Z2pIZ21neENrcTZ5NExMbXpDU3c9PSIsInZhbHVlIjoicFR2Rk4rdG1rZE1rSjkrQjMwaFI3TXlvSFg4RmFsVWFGQ3IyYyt1cTg5OHhTQ3Zwa2REUEZGdmxTb3JiaDFqT0ZsUHFvNHdBWXlzdjBGMUQ2L25IYXc1cTErNlc5RzBUSmtYMnlLMUIvUll1L2ZuV0Fac2R2MklYTWJlTk1qM04iLCJtYWMiOiJkNzg3ZTE4OWFhNTNiMGFiNTRjNTZjYzc3ZWYxNGI3ZThhNzVmMDA2NTQ4MjA5ZjQxMjViMzZhNTJkOGZkY2IzIiwidGFnIjoiIn0=";
+
   document.addEventListener("DOMContentLoaded", function () {
     if (typeof Vue === "undefined") {
       console.warn("Vue.js is not loaded.");
@@ -16,94 +19,16 @@
         isPausedRecording: false,
         recTimerText: "0:00",
         isTyping: false,
-        messages: [
-          {
-            id: 1,
-            out: false,
-            text: "Hey! Are you free this evening? 👋",
-            time: "9:10 AM",
-            date: "Yesterday",
-            status: "read",
-          },
-          {
-            id: 2,
-            out: true,
-            text: "Yeah I should be! What's up?",
-            time: "9:13 AM",
-            date: "Yesterday",
-            status: "read",
-          },
-          {
-            id: 3,
-            out: false,
-            text: "We're planning a small get-together at Sarah's place. You should come! 🎉",
-            time: "9:15 AM",
-            date: "Yesterday",
-            status: "read",
-          },
-          {
-            id: 4,
-            out: true,
-            text: "Oh that sounds fun 😄 What time does it start?",
-            time: "9:17 AM",
-            date: "Yesterday",
-            status: "read",
-          },
-          {
-            id: 5,
-            out: false,
-            type: "voice",
-            duration: 7,
-            peaks: window.SAMPLE_PEAKS_IN,
-            time: "9:18 AM",
-            date: "Yesterday",
-            status: "read",
-          },
-          {
-            id: 6,
-            out: true,
-            text: "Got it! Thanks for sending the audio details 🎧",
-            time: "9:20 AM",
-            date: "Yesterday",
-            status: "read",
-          },
-          {
-            id: 7,
-            out: false,
-            text: "Hey, did you end up watching that movie I recommended?",
-            time: "11:45 AM",
-            date: "Today",
-            status: "read",
-          },
-          {
-            id: 8,
-            out: true,
-            type: "voice",
-            duration: 5,
-            peaks: window.SAMPLE_PEAKS_OUT,
-            time: "11:52 AM",
-            date: "Today",
-            status: "read",
-          },
-          {
-            id: 9,
-            out: false,
-            text: "Can't wait to hear more! 🎉",
-            time: "12:01 PM",
-            date: "Today",
-            status: "read",
-          },
-        ],
+        messages: [],
+        currentPage: 1,
+        hasMore: true,
+        isLoadingMore: false,
+        initialLoading: true,
+        scrollCooldown: false,
+        perPage: 50,
       },
       mounted: function () {
-        this.messages.forEach((m) => {
-          window.messageMetaData.set(m.id, {
-            duration: m.duration || 5,
-            speed: 1,
-            peaks: m.peaks || window.SAMPLE_PEAKS_OUT,
-          });
-        });
-        this.scrollToBottom();
+        this.fetchInitialMessages();
         this.bindGlobalClick();
       },
       methods: {
@@ -140,8 +65,223 @@
           return (
             window.WAPI_IDENTITY ||
             new URLSearchParams(window.location.search).get("identity") ||
-            ""
+            DEFAULT_IDENTITY
           );
+        },
+        handleScroll: function (e) {
+          const el = e.target;
+          if (
+            el.scrollTop <= 50 &&
+            this.hasMore &&
+            !this.isLoadingMore &&
+            !this.initialLoading &&
+            !this.scrollCooldown
+          ) {
+            this.fetchMoreMessages();
+          }
+        },
+        fetchInitialMessages: function () {
+          const self = this;
+          self.initialLoading = true;
+          const identity = self.getIdentity();
+
+          const url = `https://wapi.betalogics.com/e-web/get-messages?identity=${encodeURIComponent(
+            identity
+          )}&page=1&per_page=${self.perPage}`;
+
+          axios
+            .get(url, {
+              headers: { Accept: "application/json" },
+            })
+            .then(function (response) {
+              if (
+                response.data &&
+                response.data.success &&
+                response.data.data
+              ) {
+                const rawItems = response.data.data;
+                const formatted = rawItems
+                  .map((item) => self.mapApiMessage(item))
+                  .reverse();
+                self.messages = formatted;
+
+                if (response.data.pagination) {
+                  self.currentPage = response.data.pagination.current_page || 1;
+                  self.hasMore = !!response.data.pagination.has_more;
+                } else {
+                  self.hasMore = false;
+                }
+
+                self.messages.forEach((m) => {
+                  window.messageMetaData.set(m.id, {
+                    duration: m.duration || 5,
+                    speed: 1,
+                    peaks: m.peaks || window.SAMPLE_PEAKS_OUT,
+                  });
+                });
+                self.scrollToBottom();
+              }
+            })
+            .catch(function (error) {
+              console.error("Error fetching initial messages:", error);
+            })
+            .finally(function () {
+              self.initialLoading = false;
+            });
+        },
+        fetchMoreMessages: function () {
+          const self = this;
+          if (self.isLoadingMore || !self.hasMore || self.scrollCooldown)
+            return;
+          self.isLoadingMore = true;
+          self.scrollCooldown = true;
+
+          const area = document.getElementById("messages-area");
+          let anchorRow = null;
+          let anchorOffset = 0;
+
+          if (area) {
+            const rows = area.querySelectorAll(".msg-row");
+            if (rows.length > 0) {
+              anchorRow = rows[0];
+              anchorOffset = anchorRow.getBoundingClientRect().top;
+            }
+          }
+
+          const nextPage = self.currentPage + 1;
+          const identity = self.getIdentity();
+          const url = `https://wapi.betalogics.com/e-web/get-messages?identity=${encodeURIComponent(
+            identity
+          )}&page=${nextPage}&per_page=${self.perPage}`;
+
+          axios
+            .get(url, {
+              headers: { Accept: "application/json" },
+            })
+            .then(function (response) {
+              if (
+                response.data &&
+                response.data.success &&
+                response.data.data
+              ) {
+                const rawItems = response.data.data;
+                const formatted = rawItems
+                  .map((item) => self.mapApiMessage(item))
+                  .reverse();
+
+                self.messages = [...formatted, ...self.messages];
+
+                if (response.data.pagination) {
+                  self.currentPage =
+                    response.data.pagination.current_page || nextPage;
+                  self.hasMore = !!response.data.pagination.has_more;
+                } else {
+                  self.hasMore = false;
+                }
+
+                formatted.forEach((m) => {
+                  window.messageMetaData.set(m.id, {
+                    duration: m.duration || 5,
+                    speed: 1,
+                    peaks: m.peaks || window.SAMPLE_PEAKS_OUT,
+                  });
+                });
+
+                self.$nextTick(() => {
+                  requestAnimationFrame(() => {
+                    if (area && anchorRow) {
+                      const newOffset = anchorRow.getBoundingClientRect().top;
+                      area.scrollTop += newOffset - anchorOffset;
+                    }
+                    setTimeout(() => {
+                      self.scrollCooldown = false;
+                    }, 250);
+                  });
+                });
+              } else {
+                self.scrollCooldown = false;
+              }
+            })
+            .catch(function (error) {
+              console.error("Error fetching pagination messages:", error);
+              self.scrollCooldown = false;
+            })
+            .finally(function () {
+              self.isLoadingMore = false;
+            });
+        },
+        mapApiMessage: function (item) {
+          const isOut = item.direction === 1;
+          const bodyVal =
+            item.content && item.content.body && item.content.body.value
+              ? item.content.body.value
+              : "";
+          const createdAt =
+            item.content && item.content.body && item.content.body.created_at
+              ? item.content.body.created_at
+              : null;
+
+          let timeStr = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          if (createdAt) {
+            const d = new Date(createdAt);
+            if (!isNaN(d.getTime())) {
+              timeStr = d.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+            }
+          }
+
+          const media =
+            item.content && item.content.header && item.content.header.media
+              ? item.content.header.media
+              : null;
+          const mediaType =
+            media && media.type ? media.type.toUpperCase() : null;
+          const mediaUrl = media && media.url ? media.url : null;
+
+          let msgType = "text";
+          let photoUrl = "";
+          let fileName = "";
+          let fileSize = "";
+
+          if (mediaType === "IMAGE" || mediaType === "PHOTO") {
+            msgType = "photo";
+            photoUrl = mediaUrl;
+          } else if (mediaType === "DOCUMENT" || mediaType === "FILE") {
+            msgType = "document";
+            fileName = mediaUrl ? mediaUrl.split("/").pop() : "Document";
+            fileSize = "";
+          } else if (mediaType === "AUDIO" || mediaType === "VOICE") {
+            msgType = "voice";
+          }
+
+          const statusMap = {
+            sending: "pending",
+            sent: "sent",
+            read: "read",
+            delivered: "sent",
+          };
+          const status = statusMap[item.status] || (isOut ? "sent" : "read");
+
+          return {
+            id:
+              (item.message && item.message.message_id) ||
+              Math.random() + Date.now(),
+            out: isOut,
+            type: msgType,
+            text: bodyVal,
+            photoUrl: photoUrl,
+            fileName: fileName,
+            fileSize: fileSize,
+            duration: 5,
+            peaks: window.SAMPLE_PEAKS_OUT,
+            time: timeStr,
+            status: status,
+          };
         },
         sendMessageApi: function () {
           const text = this.inputText.trim();
@@ -173,8 +313,7 @@
             .post(
               "https://wapi.betalogics.com/e-web/send-message",
               {
-                identity:
-                  "eyJpdiI6InY1Z2pIZ21neENrcTZ5NExMbXpDU3c9PSIsInZhbHVlIjoicFR2Rk4rdG1rZE1rSjkrQjMwaFI3TXlvSFg4RmFsVWFGQ3IyYyt1cTg5OHhTQ3Zwa2REUEZGdmxTb3JiaDFqT0ZsUHFvNHdBWXlzdjBGMUQ2L25IYXc1cTErNlc5RzBUSmtYMnlLMUIvUll1L2ZuV0Fac2R2MklYTWJlTk1qM04iLCJtYWMiOiJkNzg3ZTE4OWFhNTNiMGFiNTRjNTZjYzc3ZWYxNGI3ZThhNzVmMDA2NTQ4MjA5ZjQxMjViMzZhNTJkOGZkY2IzIiwidGFnIjoiIn0=",
+                identity: identity,
                 type: "TEXT",
                 value: text,
               },
@@ -190,13 +329,6 @@
               setTimeout(() => {
                 outMsg.status = "read";
               }, 1000);
-
-              if (response.data && response.data.reply) {
-                setTimeout(() => {
-                  self.messages.push(response.data.reply);
-                  self.scrollToBottom();
-                }, 1200);
-              }
             })
             .catch(function (error) {
               console.error("WAPI Text Send Error:", error);
@@ -234,10 +366,7 @@
           self.scrollToBottom();
 
           const formData = new FormData();
-          formData.append(
-            "identity",
-            "eyJpdiI6InY1Z2pIZ21neENrcTZ5NExMbXpDU3c9PSIsInZhbHVlIjoicFR2Rk4rdG1rZE1rSjkrQjMwaFI3TXlvSFg4RmFsVWFGQ3IyYyt1cTg5OHhTQ3Zwa2REUEZGdmxTb3JiaDFqT0ZsUHFvNHdBWXlzdjBGMUQ2L25IYXc1cTErNlc5RzBUSmtYMnlLMUIvUll1L2ZuV0Fac2R2MklYTWJlTk1qM04iLCJtYWMiOiJkNzg3ZTE4OWFhNTNiMGFiNTRjNTZjYzc3ZWYxNGI3ZThhNzVmMDA2NTQ4MjA5ZjQxMjViMzZhNTJkOGZkY2IzIiwidGFnIjoiIn0="
-          );
+          formData.append("identity", identity);
           formData.append("type", "AUDIO");
           if (blob) {
             formData.append("value", blob, "recording.webm");
@@ -301,10 +430,7 @@
           self.scrollToBottom();
 
           const formData = new FormData();
-          formData.append(
-            "identity",
-            "eyJpdiI6InY1Z2pIZ21neENrcTZ5NExMbXpDU3c9PSIsInZhbHVlIjoicFR2Rk4rdG1rZE1rSjkrQjMwaFI3TXlvSFg4RmFsVWFGQ3IyYyt1cTg5OHhTQ3Zwa2REUEZGdmxTb3JiaDFqT0ZsUHFvNHdBWXlzdjBGMUQ2L25IYXc1cTErNlc5RzBUSmtYMnlLMUIvUll1L2ZuV0Fac2R2MklYTWJlTk1qM04iLCJtYWMiOiJkNzg3ZTE4OWFhNTNiMGFiNTRjNTZjYzc3ZWYxNGI3ZThhNzVmMDA2NTQ4MjA5ZjQxMjViMzZhNTJkOGZkY2IzIiwidGFnIjoiIn0="
-          );
+          formData.append("identity", identity);
           formData.append("type", apiType);
           formData.append("value", file);
 

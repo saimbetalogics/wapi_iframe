@@ -16,7 +16,10 @@
         </div>
     </div>
 
-    <div id="messages-area">
+    <div id="messages-area" @scroll="handleScroll">
+        <div v-if="isLoadingMore" class="top-loader-wrap">
+            <div class="top-loader-spinner"></div>
+        </div>
         <template v-for="m in messages">
             <div :key="m.id" :class="['msg-row', m.out ? 'out' : 'in']" :data-msgid="m.id">
                 <div v-if="m.type === 'voice'" class="bubble voice-bubble">
