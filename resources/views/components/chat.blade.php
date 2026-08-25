@@ -3,9 +3,6 @@
         <div class="h-avatar" style="background:#e91e63">AJ</div>
         <div class="h-info">
             <div class="h-name">Alice Johnson</div>
-            <div class="h-status">
-                <span class="online-dot"></span> online
-            </div>
         </div>
         <div class="h-icons">
             <button class="icon-btn" title="More options">
