@@ -451,55 +451,6 @@ body {
     display: none;
 }
 
-#emoji-picker {
-    position: absolute;
-    bottom: 68px;
-    left: 12px;
-    background: #1d2b34;
-    border: 1px solid var(--divider);
-    border-radius: 14px;
-    padding: 14px;
-    display: none;
-    flex-wrap: wrap;
-    gap: 6px;
-    width: 300px;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
-    z-index: 100;
-}
-
-#emoji-picker.open {
-    display: flex;
-    animation: fadeUp 0.15s ease;
-}
-
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-#emoji-picker span {
-    font-size: 23px;
-    cursor: pointer;
-    border-radius: 6px;
-    padding: 3px;
-    line-height: 1;
-    transition:
-        background 0.1s,
-        transform 0.1s;
-    user-select: none;
-}
-
-#emoji-picker span:hover {
-    background: var(--bg-hover);
-    transform: scale(1.2);
-}
-
 #normal-input-wrap {
     display: flex;
     align-items: center;
@@ -769,8 +720,5 @@ body {
     }
     .bubble {
         max-width: 85%;
-    }
-    #emoji-picker {
-        width: calc(100vw - 24px);
     }
 }

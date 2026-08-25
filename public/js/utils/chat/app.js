@@ -46,27 +46,7 @@
             });
         }
 
-        const emojiBtn = $("emoji-btn");
-        if (emojiBtn) {
-            emojiBtn.addEventListener("click", function (e) {
-                e.stopPropagation();
-                const picker = $("emoji-picker");
-                if (picker) picker.classList.toggle("open");
-            });
-        }
-
         document.addEventListener("click", function (e) {
-            const picker = $("emoji-picker");
-            const emojiBtn = $("emoji-btn");
-            if (
-                picker &&
-                emojiBtn &&
-                !picker.contains(e.target) &&
-                e.target !== emojiBtn
-            ) {
-                picker.classList.remove("open");
-            }
-
             const playBtn = e.target.closest(".vb-play-btn");
             if (playBtn) {
                 const msgId = parseInt(playBtn.dataset.msgid, 10);
@@ -97,7 +77,6 @@
             }
         });
 
-        window.buildEmojiPicker();
         window.renderMessages();
     });
 })();

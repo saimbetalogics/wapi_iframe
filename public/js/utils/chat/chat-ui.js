@@ -1,46 +1,3 @@
-window.EMOJIS = [
-    "😀",
-    "😂",
-    "🥰",
-    "😎",
-    "🤔",
-    "🙄",
-    "😅",
-    "😭",
-    "🤣",
-    "😍",
-    "😊",
-    "😋",
-    "🤩",
-    "😘",
-    "😏",
-    "😇",
-    "🤗",
-    "😤",
-    "🥳",
-    "😜",
-    "👍",
-    "👏",
-    "🙏",
-    "🤝",
-    "✌️",
-    "🫂",
-    "💪",
-    "🔥",
-    "❤️",
-    "💯",
-    "✨",
-    "🎉",
-    "🥺",
-    "😱",
-    "🤦",
-    "🙆",
-    "💬",
-    "🚀",
-    "📝",
-    "⭐",
-];
-
 window.AUTO_REPLIES = [
     "Got it! 👍",
     "Sure, sounds great!",
@@ -414,25 +371,4 @@ window.updateSendBtn = function () {
     if (document.getElementById("msg-input").value.trim())
         btn.classList.remove("mic");
     else btn.classList.add("mic");
-};
-
-window.buildEmojiPicker = function () {
-    const picker = document.getElementById("emoji-picker");
-    if (!picker) return;
-    window.EMOJIS.forEach((e) => {
-        const span = document.createElement("span");
-        span.textContent = e;
-        span.title = e;
-        span.addEventListener("click", () => {
-            const inp = document.getElementById("msg-input");
-            const start = inp.selectionStart;
-            const end = inp.selectionEnd;
-            inp.value = inp.value.slice(0, start) + e + inp.value.slice(end);
-            inp.selectionStart = inp.selectionEnd = start + e.length;
-            inp.focus();
-            window.autoResize(inp);
-            window.updateSendBtn();
-        });
-        picker.appendChild(span);
-    });
 };

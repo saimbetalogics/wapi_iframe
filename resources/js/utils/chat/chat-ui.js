@@ -1,16 +1,3 @@
-/**
- * Chat UI Utility Module for Wapi Chat
- * Handles DOM rendering, message bubbles (text & voice), formatting, typing indicators,
- * emoji picker, and automated reply simulations.
- */
-
-window.EMOJIS = [
-    '😀','😂','🥰','😎','🤔','🙄','😅','😭','🤣','😍',
-    '😊','😋','🤩','😘','😏','😇','🤗','😤','🥳','😜',
-    '👍','👏','🙏','🤝','✌️','🫂','💪','🔥','❤️','💯',
-    '✨','🎉','🥺','😱','🤦','🙆','💬','🚀','📝','⭐',
-];
-
 window.AUTO_REPLIES = [
     "Got it! 👍",
     "Sure, sounds great!",
@@ -29,47 +16,112 @@ window.AUTO_REPLIES = [
     "Makes sense 👌",
 ];
 
-window.SAMPLE_PEAKS_IN  = [0.25, 0.4, 0.7, 0.9, 0.6, 0.3, 0.8, 1.0, 0.65, 0.4, 0.8, 0.5, 0.3, 0.6, 0.9, 0.7, 0.4, 0.2, 0.5, 0.8, 0.6, 0.3, 0.7, 0.5, 0.4, 0.2, 0.6, 0.3];
-window.SAMPLE_PEAKS_OUT = [0.3, 0.6, 0.4, 0.8, 1.0, 0.7, 0.5, 0.3, 0.6, 0.9, 0.4, 0.2, 0.7, 0.8, 0.5, 0.9, 0.6, 0.3, 0.5, 0.7, 0.4, 0.2, 0.6, 0.8, 0.5, 0.3, 0.4, 0.2];
+window.SAMPLE_PEAKS_IN = [
+    0.25, 0.4, 0.7, 0.9, 0.6, 0.3, 0.8, 1.0, 0.65, 0.4, 0.8, 0.5, 0.3, 0.6, 0.9,
+    0.7, 0.4, 0.2, 0.5, 0.8, 0.6, 0.3, 0.7, 0.5, 0.4, 0.2, 0.6, 0.3,
+];
+window.SAMPLE_PEAKS_OUT = [
+    0.3, 0.6, 0.4, 0.8, 1.0, 0.7, 0.5, 0.3, 0.6, 0.9, 0.4, 0.2, 0.7, 0.8, 0.5,
+    0.9, 0.6, 0.3, 0.5, 0.7, 0.4, 0.2, 0.6, 0.8, 0.5, 0.3, 0.4, 0.2,
+];
 
 window.DEMO_MESSAGES = [
-    { out: false, text: "Hey! Are you free this evening? 👋",                         time: "9:10 AM",  date: "Yesterday", status: "read" },
-    { out: true,  text: "Yeah I should be! What's up?",                               time: "9:13 AM",  date: "Yesterday", status: "read" },
-    { out: false, text: "We're planning a small get-together at Sarah's place. You should come! 🎉", time: "9:15 AM", date: "Yesterday", status: "read" },
-    { out: true,  text: "Oh that sounds fun 😄 What time does it start?",             time: "9:17 AM",  date: "Yesterday", status: "read" },
-    { out: false, type: "voice", duration: 7, peaks: window.SAMPLE_PEAKS_IN,         time: "9:18 AM",  date: "Yesterday", status: "read" },
-    { out: true,  text: "Got it! Thanks for sending the audio details 🎧",            time: "9:20 AM",  date: "Yesterday", status: "read" },
-    { out: false, text: "Hey, did you end up watching that movie I recommended?",     time: "11:45 AM", date: "Today",     status: "read" },
-    { out: true,  type: "voice", duration: 5, peaks: window.SAMPLE_PEAKS_OUT,        time: "11:52 AM", date: "Today",     status: "read" },
-    { out: false, text: "Can't wait to hear more! 🎉",                                time: "12:01 PM", date: "Today",     status: "read" },
+    {
+        out: false,
+        text: "Hey! Are you free this evening? 👋",
+        time: "9:10 AM",
+        date: "Yesterday",
+        status: "read",
+    },
+    {
+        out: true,
+        text: "Yeah I should be! What's up?",
+        time: "9:13 AM",
+        date: "Yesterday",
+        status: "read",
+    },
+    {
+        out: false,
+        text: "We're planning a small get-together at Sarah's place. You should come! 🎉",
+        time: "9:15 AM",
+        date: "Yesterday",
+        status: "read",
+    },
+    {
+        out: true,
+        text: "Oh that sounds fun 😄 What time does it start?",
+        time: "9:17 AM",
+        date: "Yesterday",
+        status: "read",
+    },
+    {
+        out: false,
+        type: "voice",
+        duration: 7,
+        peaks: window.SAMPLE_PEAKS_IN,
+        time: "9:18 AM",
+        date: "Yesterday",
+        status: "read",
+    },
+    {
+        out: true,
+        text: "Got it! Thanks for sending the audio details 🎧",
+        time: "9:20 AM",
+        date: "Yesterday",
+        status: "read",
+    },
+    {
+        out: false,
+        text: "Hey, did you end up watching that movie I recommended?",
+        time: "11:45 AM",
+        date: "Today",
+        status: "read",
+    },
+    {
+        out: true,
+        type: "voice",
+        duration: 5,
+        peaks: window.SAMPLE_PEAKS_OUT,
+        time: "11:52 AM",
+        date: "Today",
+        status: "read",
+    },
+    {
+        out: false,
+        text: "Can't wait to hear more! 🎉",
+        time: "12:01 PM",
+        date: "Today",
+        status: "read",
+    },
 ];
 
 window.msgIdCounter = 400;
 
-window.fmt = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+window.fmt = () =>
+    new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 window.fmtDuration = function (s) {
     s = Math.round(s || 0);
     const m = Math.floor(s / 60);
     const sec = s % 60;
-    return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    return `${m}:${sec < 10 ? "0" : ""}${sec}`;
 };
 
 window.esc = function (t) {
-    return (t || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
+    return (t || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\n/g, "<br>");
 };
 
 window.tickHTML = function (status) {
-    if (status === 'pending') {
+    if (status === "pending") {
         return `<span class="tick pending">
             <svg viewBox="0 0 16 11"><path d="M11.071.653l-6.383 7.17-2.75-2.75-1.5 1.5 4.25 4.25 7.883-8.669z"/></svg>
         </span>`;
     }
-    if (status === 'sent') {
+    if (status === "sent") {
         return `<span class="tick sent">
             <svg viewBox="0 0 16 11"><path d="M10.91.681l-6.383 7.17-2.75-2.75-1.5 1.5 4.25 4.25 7.883-8.67z"/></svg>
         </span>`;
@@ -83,27 +135,33 @@ window.tickHTML = function (status) {
 };
 
 window.generatePeaksHTML = function (peaks) {
-    const p = (peaks && peaks.length >= 10) ? peaks : window.SAMPLE_PEAKS_OUT;
-    return p.map(val => {
-        const heightPct = Math.max(15, Math.min(100, Math.round(val * 100)));
-        return `<span class="vb-bar" style="height:${heightPct}%"></span>`;
-    }).join('');
+    const p = peaks && peaks.length >= 10 ? peaks : window.SAMPLE_PEAKS_OUT;
+    return p
+        .map((val) => {
+            const heightPct = Math.max(
+                15,
+                Math.min(100, Math.round(val * 100)),
+            );
+            return `<span class="vb-bar" style="height:${heightPct}%"></span>`;
+        })
+        .join("");
 };
 
 window.bubbleHTML = function (m) {
-    if (m.type === 'voice') {
+    if (m.type === "voice") {
         const durationStr = window.fmtDuration(m.duration || 5);
         return `
-        <div class="msg-row ${m.out ? 'out' : 'in'}" data-msgid="${m.id}">
+        <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
             <div class="bubble voice-bubble">
                 <div class="vb-avatar">
-                    ${m.out 
-                        ? `<div class="vba-circle out" title="You">
+                    ${
+                        m.out
+                            ? `<div class="vba-circle out" title="You">
                              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                                 <path d="M12 15c1.66 0 2.99-1.34 2.99-3L15 6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.42 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
                              </svg>
                            </div>`
-                        : `<div class="vba-circle in" title="Alice">AJ</div>`
+                            : `<div class="vba-circle in" title="Alice">AJ</div>`
                     }
                 </div>
                 <div class="vb-content">
@@ -131,78 +189,94 @@ window.bubbleHTML = function (m) {
                 </div>
                 <span class="msg-meta voice-meta">
                     <span class="msg-time">${m.time}</span>
-                    ${m.out ? window.tickHTML(m.status) : ''}
+                    ${m.out ? window.tickHTML(m.status) : ""}
                 </span>
             </div>
         </div>`;
     }
 
     return `
-    <div class="msg-row ${m.out ? 'out' : 'in'}" data-msgid="${m.id}">
+    <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
         <div class="bubble">
             <span class="msg-text">${window.esc(m.text)}</span>
             <span class="msg-meta">
                 <span class="msg-time">${m.time}</span>
-                ${m.out ? window.tickHTML(m.status) : ''}
+                ${m.out ? window.tickHTML(m.status) : ""}
             </span>
         </div>
     </div>`;
 };
 
 window.renderMessages = function () {
-    const area = document.getElementById('messages-area');
+    const area = document.getElementById("messages-area");
     if (!area) return;
-    area.innerHTML = '';
+    area.innerHTML = "";
     let lastDate = null;
 
     window.DEMO_MESSAGES.forEach((m, i) => {
         m.id = i + 1;
-        window.messageMetaData.set(m.id, { duration: m.duration || 5, speed: 1, peaks: m.peaks || window.SAMPLE_PEAKS_OUT });
+        window.messageMetaData.set(m.id, {
+            duration: m.duration || 5,
+            speed: 1,
+            peaks: m.peaks || window.SAMPLE_PEAKS_OUT,
+        });
         if (m.date !== lastDate) {
-            area.insertAdjacentHTML('beforeend', `<div class="date-sep"><span>${m.date}</span></div>`);
+            area.insertAdjacentHTML(
+                "beforeend",
+                `<div class="date-sep"><span>${m.date}</span></div>`,
+            );
             lastDate = m.date;
         }
-        area.insertAdjacentHTML('beforeend', window.bubbleHTML(m));
+        area.insertAdjacentHTML("beforeend", window.bubbleHTML(m));
     });
 
-    area.insertAdjacentHTML('beforeend', `
+    area.insertAdjacentHTML(
+        "beforeend",
+        `
         <div class="msg-row in" id="typing-row" style="display:none">
             <div class="typing-indicator">
                 <span></span><span></span><span></span>
             </div>
-        </div>`);
+        </div>`,
+    );
 
     window.scrollBottom();
 };
 
 window.scrollBottom = function () {
-    const a = document.getElementById('messages-area');
+    const a = document.getElementById("messages-area");
     if (a) a.scrollTop = a.scrollHeight;
 };
 
 window.sendMessage = function () {
-    const input = document.getElementById('msg-input');
-    const text  = input.value.trim();
+    const input = document.getElementById("msg-input");
+    const text = input.value.trim();
     if (!text) return;
 
     window.msgIdCounter++;
-    const m = { id: window.msgIdCounter, text, out: true, time: window.fmt(), status: 'pending' };
+    const m = {
+        id: window.msgIdCounter,
+        text,
+        out: true,
+        time: window.fmt(),
+        status: "pending",
+    };
 
-    input.value = '';
-    input.style.height = '';
+    input.value = "";
+    input.style.height = "";
     window.updateSendBtn();
 
-    const area   = document.getElementById('messages-area');
-    const tyRow  = document.getElementById('typing-row');
-    const row    = document.createElement('div');
-    row.className    = 'msg-row out';
+    const area = document.getElementById("messages-area");
+    const tyRow = document.getElementById("typing-row");
+    const row = document.createElement("div");
+    row.className = "msg-row out";
     row.dataset.msgid = m.id;
     row.innerHTML = window.bubbleHTML(m);
     area.insertBefore(row, tyRow);
     window.scrollBottom();
 
-    setTimeout(() => window.updateTick(m.id, 'sent'), 700);
-    setTimeout(() => window.updateTick(m.id, 'read'), 2000);
+    setTimeout(() => window.updateTick(m.id, "sent"), 700);
+    setTimeout(() => window.updateTick(m.id, "read"), 2000);
 
     setTimeout(() => window.showTyping(true), 2500);
     const delay = 4200 + Math.random() * 1000;
@@ -213,28 +287,37 @@ window.sendMessage = function () {
 };
 
 window.updateTick = function (id, status) {
-    const row  = document.querySelector(`[data-msgid="${id}"]`);
+    const row = document.querySelector(`[data-msgid="${id}"]`);
     if (!row) return;
-    const tick = row.querySelector('.tick');
+    const tick = row.querySelector(".tick");
     if (tick) tick.outerHTML = window.tickHTML(status);
 };
 
 window.showTyping = function (show) {
-    const row = document.getElementById('typing-row');
+    const row = document.getElementById("typing-row");
     if (!row) return;
-    row.style.display = show ? 'flex' : 'none';
+    row.style.display = show ? "flex" : "none";
     if (show) window.scrollBottom();
 };
 
 window.fakeReply = function () {
     window.msgIdCounter++;
-    const text = window.AUTO_REPLIES[Math.floor(Math.random() * window.AUTO_REPLIES.length)];
-    const m    = { id: window.msgIdCounter, text, out: false, time: window.fmt(), status: 'read' };
+    const text =
+        window.AUTO_REPLIES[
+            Math.floor(Math.random() * window.AUTO_REPLIES.length)
+        ];
+    const m = {
+        id: window.msgIdCounter,
+        text,
+        out: false,
+        time: window.fmt(),
+        status: "read",
+    };
 
-    const area  = document.getElementById('messages-area');
-    const tyRow = document.getElementById('typing-row');
-    const row   = document.createElement('div');
-    row.className    = 'msg-row in';
+    const area = document.getElementById("messages-area");
+    const tyRow = document.getElementById("typing-row");
+    const row = document.createElement("div");
+    row.className = "msg-row in";
     row.dataset.msgid = m.id;
     row.innerHTML = window.bubbleHTML(m);
     area.insertBefore(row, tyRow);
@@ -245,60 +328,47 @@ window.fakeVoiceReply = function () {
     window.msgIdCounter++;
     const newId = window.msgIdCounter;
     const dur = Math.floor(Math.random() * 6) + 3;
-    
-    window.audioBlobs.set(newId, URL.createObjectURL(window.createSyntheticAudioBlob(dur)));
-    window.messageMetaData.set(newId, { duration: dur, speed: 1, peaks: window.SAMPLE_PEAKS_IN });
+
+    window.audioBlobs.set(
+        newId,
+        URL.createObjectURL(window.createSyntheticAudioBlob(dur)),
+    );
+    window.messageMetaData.set(newId, {
+        duration: dur,
+        speed: 1,
+        peaks: window.SAMPLE_PEAKS_IN,
+    });
 
     const m = {
         id: newId,
         out: false,
-        type: 'voice',
+        type: "voice",
         duration: dur,
         peaks: window.SAMPLE_PEAKS_IN,
         time: window.fmt(),
-        status: 'read'
+        status: "read",
     };
 
-    const area  = document.getElementById('messages-area');
-    const tyRow = document.getElementById('typing-row');
-    const row   = document.createElement('div');
-    row.className    = 'msg-row in';
+    const area = document.getElementById("messages-area");
+    const tyRow = document.getElementById("typing-row");
+    const row = document.createElement("div");
+    row.className = "msg-row in";
     row.dataset.msgid = m.id;
-    row.innerHTML    = window.bubbleHTML(m);
+    row.innerHTML = window.bubbleHTML(m);
     area.insertBefore(row, tyRow);
     window.scrollBottom();
 };
 
 window.autoResize = function (el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
 };
 
 window.updateSendBtn = function () {
-    const btn = document.getElementById('send-btn');
+    const btn = document.getElementById("send-btn");
     if (!btn) return;
     if (window.recState && window.recState.isRecording) return;
-    if (document.getElementById('msg-input').value.trim()) btn.classList.remove('mic');
-    else btn.classList.add('mic');
-};
-
-window.buildEmojiPicker = function () {
-    const picker = document.getElementById('emoji-picker');
-    if (!picker) return;
-    window.EMOJIS.forEach(e => {
-        const span       = document.createElement('span');
-        span.textContent = e;
-        span.title       = e;
-        span.addEventListener('click', () => {
-            const inp   = document.getElementById('msg-input');
-            const start = inp.selectionStart;
-            const end   = inp.selectionEnd;
-            inp.value   = inp.value.slice(0, start) + e + inp.value.slice(end);
-            inp.selectionStart = inp.selectionEnd = start + e.length;
-            inp.focus();
-            window.autoResize(inp);
-            window.updateSendBtn();
-        });
-        picker.appendChild(span);
-    });
+    if (document.getElementById("msg-input").value.trim())
+        btn.classList.remove("mic");
+    else btn.classList.add("mic");
 };
