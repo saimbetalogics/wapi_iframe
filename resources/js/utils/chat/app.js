@@ -46,7 +46,84 @@
             });
         }
 
+        const attachBtn = $("attach-btn");
+        if (attachBtn) {
+            attachBtn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                const menu = $("attach-menu");
+                if (menu) menu.classList.toggle("open");
+            });
+        }
+
+        const optDoc = $("opt-doc");
+        if (optDoc) {
+            optDoc.addEventListener("click", function (e) {
+                e.stopPropagation();
+                $("attach-menu").classList.remove("open");
+                $("file-input-doc").click();
+            });
+        }
+
+        const optPhoto = $("opt-photo");
+        if (optPhoto) {
+            optPhoto.addEventListener("click", function (e) {
+                e.stopPropagation();
+                $("attach-menu").classList.remove("open");
+                $("file-input-photo").click();
+            });
+        }
+
+        const optAudio = $("opt-audio");
+        if (optAudio) {
+            optAudio.addEventListener("click", function (e) {
+                e.stopPropagation();
+                $("attach-menu").classList.remove("open");
+                $("file-input-audio").click();
+            });
+        }
+
+        const fileDoc = $("file-input-doc");
+        if (fileDoc) {
+            fileDoc.addEventListener("change", function () {
+                if (this.files && this.files[0]) {
+                    window.sendAttachment("document", this.files[0]);
+                    this.value = "";
+                }
+            });
+        }
+
+        const filePhoto = $("file-input-photo");
+        if (filePhoto) {
+            filePhoto.addEventListener("change", function () {
+                if (this.files && this.files[0]) {
+                    window.sendAttachment("photo", this.files[0]);
+                    this.value = "";
+                }
+            });
+        }
+
+        const fileAudio = $("file-input-audio");
+        if (fileAudio) {
+            fileAudio.addEventListener("change", function () {
+                if (this.files && this.files[0]) {
+                    window.sendAttachment("audio", this.files[0]);
+                    this.value = "";
+                }
+            });
+        }
+
         document.addEventListener("click", function (e) {
+            const menu = $("attach-menu");
+            const attachBtn = $("attach-btn");
+            if (
+                menu &&
+                attachBtn &&
+                !menu.contains(e.target) &&
+                !attachBtn.contains(e.target)
+            ) {
+                menu.classList.remove("open");
+            }
+
             const playBtn = e.target.closest(".vb-play-btn");
             if (playBtn) {
                 const msgId = parseInt(playBtn.dataset.msgid, 10);

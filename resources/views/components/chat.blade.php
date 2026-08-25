@@ -18,6 +18,37 @@
 
     <div id="messages-area"></div>
 
+    <div id="attach-menu">
+        <button class="attach-opt" id="opt-doc" title="Document">
+            <span class="attach-icon-circle doc">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+            </span>
+            <span class="attach-label">Document</span>
+        </button>
+        <button class="attach-opt" id="opt-photo" title="Photo">
+            <span class="attach-icon-circle photo">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                </svg>
+            </span>
+            <span class="attach-label">Photo</span>
+        </button>
+        <button class="attach-opt" id="opt-audio" title="Audio">
+            <span class="attach-icon-circle audio">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+            </span>
+            <span class="attach-label">Audio</span>
+        </button>
+    </div>
+
+    <input type="file" id="file-input-doc" accept=".pdf,.doc,.docx,.txt,.zip,.xlsx,.pptx" style="display:none">
+    <input type="file" id="file-input-photo" accept="image/*" style="display:none">
+    <input type="file" id="file-input-audio" accept="audio/*" style="display:none">
+
     <div id="chat-input-bar">
         <div id="normal-input-wrap">
             <button class="input-icon-btn" id="attach-btn" title="Attach file">

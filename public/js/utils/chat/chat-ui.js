@@ -195,6 +195,40 @@ window.bubbleHTML = function (m) {
         </div>`;
     }
 
+    if (m.type === "document") {
+        return `
+        <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
+            <div class="bubble doc-bubble">
+                <div class="doc-icon-box">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                </div>
+                <div class="doc-info">
+                    <div class="doc-name">${window.esc(m.fileName || "Document.pdf")}</div>
+                    <div class="doc-size">${window.esc(m.fileSize || "1.2 MB")}</div>
+                </div>
+                <span class="msg-meta">
+                    <span class="msg-time">${m.time}</span>
+                    ${m.out ? window.tickHTML(m.status) : ""}
+                </span>
+            </div>
+        </div>`;
+    }
+
+    if (m.type === "photo") {
+        return `
+        <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
+            <div class="bubble photo-bubble">
+                <img src="${m.photoUrl}" alt="Photo attachment" class="photo-preview">
+                <span class="msg-meta" style="margin-top: 4px; padding: 0 4px 2px;">
+                    <span class="msg-time">${m.time}</span>
+                    ${m.out ? window.tickHTML(m.status) : ""}
+                </span>
+            </div>
+        </div>`;
+    }
+
     return `
     <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
         <div class="bubble">
@@ -371,4 +405,54 @@ window.updateSendBtn = function () {
     if (document.getElementById("msg-input").value.trim())
         btn.classList.remove("mic");
     else btn.classList.add("mic");
+};
+
+window.sendAttachment = function (type, file) {
+    if (!file) return;
+    window.msgIdCounter++;
+    const newMsgId = window.msgIdCounter;
+    const time = window.fmt();
+
+    const m = {
+        id: newMsgId,
+        out: true,
+        type: type,
+        time: time,
+        status: "pending",
+    };
+
+    if (type === "document") {
+        m.fileName = file.name;
+        m.fileSize = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+    } else if (type === "photo") {
+        m.photoUrl = URL.createObjectURL(file);
+    } else if (type === "audio") {
+        m.type = "voice";
+        m.duration = 10;
+        window.audioBlobs.set(newMsgId, URL.createObjectURL(file));
+        window.messageMetaData.set(newMsgId, {
+            duration: 10,
+            speed: 1,
+            peaks: window.SAMPLE_PEAKS_OUT,
+        });
+    }
+
+    const area = document.getElementById("messages-area");
+    const tyRow = document.getElementById("typing-row");
+    const row = document.createElement("div");
+    row.className = "msg-row out";
+    row.dataset.msgid = m.id;
+    row.innerHTML = window.bubbleHTML(m);
+    area.insertBefore(row, tyRow);
+    window.scrollBottom();
+
+    setTimeout(() => window.updateTick(m.id, "sent"), 700);
+    setTimeout(() => window.updateTick(m.id, "read"), 2000);
+
+    setTimeout(() => window.showTyping(true), 2500);
+    const delay = 4000 + Math.random() * 1000;
+    setTimeout(() => {
+        window.showTyping(false);
+        window.fakeReply();
+    }, delay);
 };
