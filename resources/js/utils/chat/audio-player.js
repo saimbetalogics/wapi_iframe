@@ -196,3 +196,49 @@ window.togglePlaybackSpeed = function (msgId) {
         window.activePlayer.speed = nextSpeed;
     }
 };
+
+window.openInNewTab = function (url) {
+    if (!url) return;
+    window.open(url, "_blank", "noopener,noreferrer");
+};
+
+window.downloadFile = function (url, fileName) {
+    if (!url) return;
+    const name = fileName || "download";
+    fetch(url)
+        .then((res) => {
+            if (!res.ok) throw new Error("Network response was not ok");
+            return res.blob();
+        })
+        .then((blob) => {
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        })
+        .catch(() => {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = name;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+};
+
+window.downloadAudioMessage = function (msgId, fileName) {
+    const meta = window.messageMetaData.get(msgId) || { duration: 5 };
+    const url = window.getAudioUrl(msgId, meta.duration);
+    if (url) {
+        const ext = (url.split('.').pop() || 'ogg').split('?')[0];
+        const defaultName = fileName || `voice-message-${msgId}.${ext.length < 5 ? ext : 'ogg'}`;
+        window.downloadFile(url, defaultName);
+    }
+};
+

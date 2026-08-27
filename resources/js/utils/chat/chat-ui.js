@@ -188,7 +188,14 @@ window.bubbleHTML = function (m) {
                     </div>
                     <div class="vb-footer">
                         <span class="vb-time-disp" data-msgid="${m.id}">${durationStr}</span>
-                        <button class="vb-speed-btn" data-msgid="${m.id}" title="Playback speed">1x</button>
+                        <div class="vb-right-actions">
+                            <button class="vb-download-btn" onclick="event.stopPropagation(); window.downloadAudioMessage(${m.id})" title="Download audio">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                </svg>
+                            </button>
+                            <button class="vb-speed-btn" data-msgid="${m.id}" title="Playback speed">1x</button>
+                        </div>
                     </div>
                 </div>
                 <span class="msg-meta voice-meta">
@@ -200,19 +207,36 @@ window.bubbleHTML = function (m) {
     }
 
     if (m.type === "document") {
+        const fileUrl = m.fileUrl || m.url || "";
+        const fileName = window.esc(m.fileName || "Document.pdf");
+        const ext = (fileName.split('.').pop() || 'DOCUMENT').toUpperCase();
         return `
         <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
             <div class="bubble doc-bubble">
-                <div class="doc-icon-box">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                    </svg>
+                <div class="doc-card" onclick="window.openInNewTab('${fileUrl}')" title="Open document in new tab">
+                    <div class="doc-icon-box">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                    </div>
+                    <div class="doc-info">
+                        <div class="doc-name">${fileName}</div>
+                        <div class="doc-subtext">${window.esc(m.fileSize || ext)}</div>
+                    </div>
+                    <div class="doc-actions">
+                        <button type="button" class="doc-action-btn" onclick="event.stopPropagation(); window.openInNewTab('${fileUrl}')" title="Open document in new tab">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                            </svg>
+                        </button>
+                        <button type="button" class="doc-action-btn" onclick="event.stopPropagation(); window.downloadFile('${fileUrl}', '${fileName}')" title="Download document">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="doc-info">
-                    <div class="doc-name">${window.esc(m.fileName || "Document.pdf")}</div>
-                    <div class="doc-size">${window.esc(m.fileSize || "1.2 MB")}</div>
-                </div>
-                <span class="msg-meta">
+                <span class="msg-meta" style="margin-top: 4px; padding: 0 4px 2px;">
                     <span class="msg-time">${m.time}</span>
                     ${m.out ? window.tickHTML(m.status) : ""}
                 </span>
@@ -221,10 +245,26 @@ window.bubbleHTML = function (m) {
     }
 
     if (m.type === "photo") {
+        const photoUrl = m.photoUrl || m.url || "";
+        const fileName = window.esc(m.fileName || "image.jfif");
         return `
         <div class="msg-row ${m.out ? "out" : "in"}" data-msgid="${m.id}">
             <div class="bubble photo-bubble">
-                <img src="${m.photoUrl}" alt="Photo attachment" class="photo-preview">
+                <div class="photo-wrapper">
+                    <img src="${photoUrl}" alt="Photo attachment" class="photo-preview" onclick="window.openInNewTab('${photoUrl}')" title="Click to view image in new tab">
+                    <div class="photo-actions-overlay">
+                        <button class="photo-action-btn" onclick="event.stopPropagation(); window.openInNewTab('${photoUrl}')" title="Open image in new tab">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                            </svg>
+                        </button>
+                        <button class="photo-action-btn" onclick="event.stopPropagation(); window.downloadFile('${photoUrl}', '${fileName}')" title="Download image">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
                 <span class="msg-meta" style="margin-top: 4px; padding: 0 4px 2px;">
                     <span class="msg-time">${m.time}</span>
                     ${m.out ? window.tickHTML(m.status) : ""}
@@ -417,23 +457,28 @@ window.sendAttachment = function (type, file) {
     const newMsgId = window.msgIdCounter;
     const time = window.fmt();
 
+    const fileObjUrl = URL.createObjectURL(file);
+
     const m = {
         id: newMsgId,
         out: true,
         type: type,
+        url: fileObjUrl,
+        fileName: file.name,
         time: time,
         status: "pending",
     };
 
     if (type === "document") {
-        m.fileName = file.name;
+        m.fileUrl = fileObjUrl;
         m.fileSize = (file.size / (1024 * 1024)).toFixed(1) + " MB";
     } else if (type === "photo") {
-        m.photoUrl = URL.createObjectURL(file);
+        m.photoUrl = fileObjUrl;
     } else if (type === "audio") {
         m.type = "voice";
+        m.audioUrl = fileObjUrl;
         m.duration = 10;
-        window.audioBlobs.set(newMsgId, URL.createObjectURL(file));
+        window.audioBlobs.set(newMsgId, fileObjUrl);
         window.messageMetaData.set(newMsgId, {
             duration: 10,
             speed: 1,

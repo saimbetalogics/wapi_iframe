@@ -290,18 +290,26 @@
 
           let msgType = "text";
           let photoUrl = "";
+          let fileUrl = "";
+          let audioUrl = "";
           let fileName = "";
           let fileSize = "";
+
+          const extractedFileName = mediaUrl ? mediaUrl.split("/").pop() : "";
 
           if (mediaType === "IMAGE" || mediaType === "PHOTO") {
             msgType = "photo";
             photoUrl = mediaUrl;
+            fileName = extractedFileName || "image.jfif";
           } else if (mediaType === "DOCUMENT" || mediaType === "FILE") {
             msgType = "document";
-            fileName = mediaUrl ? mediaUrl.split("/").pop() : "Document";
-            fileSize = "";
+            fileUrl = mediaUrl;
+            fileName = extractedFileName || "Document.pdf";
+            fileSize = "Document";
           } else if (mediaType === "AUDIO" || mediaType === "VOICE") {
             msgType = "voice";
+            audioUrl = mediaUrl;
+            fileName = extractedFileName || "audio.ogg";
           }
 
           const statusMap = {
@@ -312,14 +320,23 @@
           };
           const status = statusMap[item.status] || (isOut ? "sent" : "read");
 
+          const msgId =
+            (item.message && item.message.message_id) ||
+            Math.random() + Date.now();
+
+          if ((mediaType === "AUDIO" || mediaType === "VOICE") && mediaUrl) {
+            window.audioBlobs.set(msgId, mediaUrl);
+          }
+
           return {
-            id:
-              (item.message && item.message.message_id) ||
-              Math.random() + Date.now(),
+            id: msgId,
             out: isOut,
             type: msgType,
             text: bodyVal,
-            photoUrl: photoUrl,
+            url: mediaUrl,
+            photoUrl: photoUrl || mediaUrl,
+            fileUrl: fileUrl || mediaUrl,
+            audioUrl: audioUrl || mediaUrl,
             fileName: fileName,
             fileSize: fileSize,
             duration: 5,
@@ -399,7 +416,11 @@
           };
 
           if (blob) {
-            window.audioBlobs.set(msgId, URL.createObjectURL(blob));
+            const blobUrl = URL.createObjectURL(blob);
+            window.audioBlobs.set(msgId, blobUrl);
+            outMsg.audioUrl = blobUrl;
+            outMsg.url = blobUrl;
+            outMsg.fileName = "voice-message-" + msgId + ".webm";
           }
           window.messageMetaData.set(msgId, {
             duration: durationSec,
@@ -443,10 +464,14 @@
           if (type === "photo") apiType = "IMAGE";
           else if (type === "audio") apiType = "AUDIO";
 
+          const fileObjUrl = URL.createObjectURL(file);
+
           const outMsg = {
             id: msgId,
             type: type,
             out: true,
+            url: fileObjUrl,
+            fileName: file.name,
             time: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
@@ -455,15 +480,16 @@
           };
 
           if (type === "photo") {
-            outMsg.photoUrl = URL.createObjectURL(file);
+            outMsg.photoUrl = fileObjUrl;
           } else if (type === "document" || type === "doc") {
             outMsg.type = "document";
-            outMsg.fileName = file.name;
+            outMsg.fileUrl = fileObjUrl;
             outMsg.fileSize = (file.size / (1024 * 1024)).toFixed(1) + " MB";
           } else if (type === "audio") {
             outMsg.type = "voice";
+            outMsg.audioUrl = fileObjUrl;
             outMsg.duration = 10;
-            window.audioBlobs.set(msgId, URL.createObjectURL(file));
+            window.audioBlobs.set(msgId, fileObjUrl);
             window.messageMetaData.set(msgId, {
               duration: 10,
               speed: 1,
@@ -495,6 +521,46 @@
               console.error("WAPI Attachment Send Error:", error);
               outMsg.status = "sent";
             });
+        },
+        openInNewTab: function (url) {
+          if (!url) return;
+          if (window.openInNewTab) {
+            window.openInNewTab(url);
+          } else {
+            window.open(url, "_blank", "noopener,noreferrer");
+          }
+        },
+        downloadFile: function (url, fileName) {
+          if (!url) return;
+          if (window.downloadFile) {
+            window.downloadFile(url, fileName);
+          } else {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName || "download";
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+        },
+        downloadAudio: function (m) {
+          const url = (m && (m.audioUrl || m.url)) || (window.getAudioUrl ? window.getAudioUrl(m.id, m.duration) : null);
+          if (url) {
+            const ext = (url.split('.').pop() || 'ogg').split('?')[0];
+            const defaultName = (m && m.fileName) || (`voice-message-${m.id}.${ext.length < 5 ? ext : 'ogg'}`);
+            this.downloadFile(url, defaultName);
+          }
+        },
+        getDocExt: function (fileName) {
+          if (!fileName) return "DOCUMENT";
+          const parts = fileName.split(".");
+          if (parts.length > 1) {
+            const ext = parts.pop().toUpperCase();
+            if (ext.length <= 5) return ext;
+          }
+          return "DOCUMENT";
         },
         playVoice: function (msgId) {
           window.playVoiceMessage(msgId);

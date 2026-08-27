@@ -52,7 +52,14 @@
                         </div>
                         <div class="vb-footer">
                             <span class="vb-time-disp" :data-msgid="m.id">@{{ fmtDuration(m.duration) }}</span>
-                            <button class="vb-speed-btn" :data-msgid="m.id" @click.stop="toggleSpeed(m.id)" title="Playback speed">1x</button>
+                            <div class="vb-right-actions">
+                                <button class="vb-download-btn" @click.stop="downloadAudio(m)" title="Download audio">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                    </svg>
+                                </button>
+                                <button class="vb-speed-btn" :data-msgid="m.id" @click.stop="toggleSpeed(m.id)" title="Playback speed">1x</button>
+                            </div>
                         </div>
                     </div>
                     <span class="msg-meta voice-meta">
@@ -62,23 +69,51 @@
                 </div>
 
                 <div v-else-if="m.type === 'document'" class="bubble doc-bubble">
-                    <div class="doc-icon-box">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-                        </svg>
+                    <div class="doc-card" @click="openInNewTab(m.fileUrl || m.url)" title="Open document in new tab">
+                        <div class="doc-icon-box">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                            </svg>
+                        </div>
+                        <div class="doc-info">
+                            <div class="doc-name">@{{ m.fileName || 'Document.pdf' }}</div>
+                            <div class="doc-subtext">@{{ m.fileSize || getDocExt(m.fileName) }}</div>
+                        </div>
+                        <div class="doc-actions">
+                            <button type="button" class="doc-action-btn" @click.stop="openInNewTab(m.fileUrl || m.url)" title="Open document in new tab">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                </svg>
+                            </button>
+                            <button type="button" class="doc-action-btn" @click.stop="downloadFile(m.fileUrl || m.url, m.fileName || 'Document.pdf')" title="Download document">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-                    <div class="doc-info">
-                        <div class="doc-name">@{{ m.fileName || 'Document.pdf' }}</div>
-                        <div class="doc-size">@{{ m.fileSize || '1.2 MB' }}</div>
-                    </div>
-                    <span class="msg-meta">
+                    <span class="msg-meta" style="margin-top: 4px; padding: 0 4px 2px;">
                         <span class="msg-time">@{{ m.time }}</span>
                         <span v-if="m.out" v-html="tickHTML(m.status)"></span>
                     </span>
                 </div>
 
                 <div v-else-if="m.type === 'photo'" class="bubble photo-bubble">
-                    <img :src="m.photoUrl" alt="Photo attachment" class="photo-preview">
+                    <div class="photo-wrapper">
+                        <img :src="m.photoUrl || m.url" alt="Photo attachment" class="photo-preview" @click="openInNewTab(m.photoUrl || m.url)" title="Click to view image in new tab">
+                        <div class="photo-actions-overlay">
+                            <button type="button" class="photo-action-btn" @click.stop="openInNewTab(m.photoUrl || m.url)" title="Open image in new tab">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                                </svg>
+                            </button>
+                            <button type="button" class="photo-action-btn" @click.stop="downloadFile(m.photoUrl || m.url, m.fileName || 'image.jfif')" title="Download image">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <span class="msg-meta" style="margin-top: 4px; padding: 0 4px 2px;">
                         <span class="msg-time">@{{ m.time }}</span>
                         <span v-if="m.out" v-html="tickHTML(m.status)"></span>
