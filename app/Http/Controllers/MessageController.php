@@ -138,13 +138,24 @@ class MessageController extends Controller
             'status' => 'read',
         ];
 
-        return response()->json([
+        $responseData = [
             'success'     => true,
             'api_response'=> $apiResult,
             'data'        => [
                 'message' => $outgoingMessage,
                 'reply'   => $replyMessage,
             ]
-        ]);
+        ];
+
+        if (is_array($apiResult)) {
+            if (isset($apiResult['brand'])) {
+                $responseData['brand'] = $apiResult['brand'];
+            }
+            if (isset($apiResult['name'])) {
+                $responseData['name'] = $apiResult['name'];
+            }
+        }
+
+        return response()->json($responseData);
     }
 }

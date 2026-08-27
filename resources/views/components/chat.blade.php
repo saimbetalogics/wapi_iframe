@@ -1,8 +1,11 @@
 <div id="wapi-chat">
     <div id="chat-header">
-        <div class="h-avatar" style="background:#e91e63">AJ</div>
+        <div class="h-avatar" style="background:#e91e63">
+            <img v-if="brandLogo" :src="brandLogo" :alt="brandName" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+            <span v-else>@{{ brandInitials }}</span>
+        </div>
         <div class="h-info">
-            <div class="h-name">Alice Johnson</div>
+            <div class="h-name">@{{ brandName }}</div>
         </div>
         <div class="h-icons">
             <button class="icon-btn" title="More options">
@@ -26,7 +29,10 @@
                                 <path d="M12 15c1.66 0 2.99-1.34 2.99-3L15 6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 15 6.7 12H5c0 3.42 2.72 6.23 6 6.72V22h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
                             </svg>
                         </div>
-                        <div v-else class="vba-circle in" title="Alice">AJ</div>
+                        <div v-else class="vba-circle in" :title="brandName">
+                            <img v-if="brandLogo" :src="brandLogo" :alt="brandName" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                            <span v-else>@{{ brandInitials }}</span>
+                        </div>
                     </div>
                     <div class="vb-content">
                         <div class="vb-main">

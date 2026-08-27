@@ -79,6 +79,7 @@ body {
   flex-shrink: 0;
   cursor: pointer;
   user-select: none;
+  overflow: hidden;
 }
 
 #chat-header .h-info {
@@ -546,6 +547,7 @@ body {
   font-size: 14px;
   color: #fff;
   user-select: none;
+  overflow: hidden;
 }
 
 .vba-circle.out {

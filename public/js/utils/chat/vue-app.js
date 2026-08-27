@@ -13,6 +13,8 @@
     window.chatApp = new Vue({
       el: "#wapi-chat",
       data: {
+        brandName: "Betalogics",
+        brandLogo: null,
         inputText: "",
         attachMenuOpen: false,
         isRecording: false,
@@ -27,11 +29,48 @@
         scrollCooldown: false,
         perPage: 50,
       },
+      computed: {
+        brandInitials: function () {
+          if (!this.brandName) return "B";
+          const parts = this.brandName.trim().split(/\s+/);
+          if (parts.length >= 2) {
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+          }
+          return parts[0].slice(0, 2).toUpperCase();
+        },
+      },
       mounted: function () {
         this.fetchInitialMessages();
         this.bindGlobalClick();
       },
       methods: {
+        updateBrandFromResponse: function (responseData) {
+          if (!responseData) return;
+          let name = "";
+          let logo = null;
+          if (responseData.brand) {
+            if (typeof responseData.brand === "object" && responseData.brand !== null) {
+              name = responseData.brand.name || responseData.brand.title || "";
+              logo = responseData.brand.logo || responseData.brand.avatar || responseData.brand.image || responseData.brand.icon || null;
+            } else if (typeof responseData.brand === "string") {
+              name = responseData.brand;
+            }
+          }
+          if (!name && responseData.name) {
+            if (typeof responseData.name === "string") {
+              name = responseData.name;
+            }
+          }
+          if (name) {
+            this.brandName = name;
+            window.brandName = name;
+            window.brandInitials = this.brandInitials;
+          }
+          if (logo) {
+            this.brandLogo = logo;
+            window.brandLogo = logo;
+          }
+        },
         scrollToBottom: function () {
           this.$nextTick(() => {
             const area = document.getElementById("messages-area");
@@ -94,6 +133,9 @@
               headers: { Accept: "application/json" },
             })
             .then(function (response) {
+              if (response.data) {
+                self.updateBrandFromResponse(response.data);
+              }
               if (
                 response.data &&
                 response.data.success &&
@@ -159,6 +201,9 @@
               headers: { Accept: "application/json" },
             })
             .then(function (response) {
+              if (response.data) {
+                self.updateBrandFromResponse(response.data);
+              }
               if (
                 response.data &&
                 response.data.success &&
